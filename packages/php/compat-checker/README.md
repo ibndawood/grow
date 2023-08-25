@@ -1,1 +1,0 @@
-# Compat Checker for WooCommerce Extensions
