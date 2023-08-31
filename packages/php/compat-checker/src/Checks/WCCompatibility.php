@@ -5,9 +5,9 @@
  * @package Automattic/WooCommerce/Grow/Tools
  */
 
-namespace Automattic\WooCommerce\Grow\Tools\Checks;
+namespace Automattic\WooCommerce\Grow\Tools\CompatChecker\v0_0_1\Checks;
 
-use Automattic\WooCommerce\Grow\Tools\Exception\IncompatibleException;
+use Automattic\WooCommerce\Grow\Tools\CompatChecker\v0_0_1\Exception\IncompatibleException;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -70,7 +70,7 @@ class WCCompatibility extends CompatCheck {
 		$wc_version          = $this->get_wc_version();
 		$wc_version_required = $this->plugin_data['RequiresWC'];
 
-		if ( ! empty( $wc_version_required ) ) {
+		if ( empty( $wc_version_required ) ) {
 			return true;
 		}
 
@@ -232,8 +232,8 @@ class WCCompatibility extends CompatCheck {
 	 * @return bool
 	 */
 	private function check_wc_upgrade_recommendation() {
-		// Bail if there is no definied versions to compare.
-		if ( empty( $this->min_wc_semver ) || ! is_numeric( $this->min_wc_semver ) ) {
+		// Bail on frontend requests or if there is no definied versions to compare.
+		if ( ! is_admin() || empty( $this->min_wc_semver ) || ! is_numeric( $this->min_wc_semver ) ) {
 			return;
 		}
 
@@ -377,8 +377,13 @@ class WCCompatibility extends CompatCheck {
 	 * Run all compatibility checks.
 	 */
 	protected function run_checks() {
-		$this->check_wc_installation_and_activation();
-		$this->check_wc_version();
-		$this->check_wc_upgrade_recommendation();
+		try {
+			$this->check_wc_installation_and_activation();
+			$this->check_wc_version();
+			$this->check_wc_upgrade_recommendation();
+			return true;
+		} catch ( IncompatibleException $e ) {
+			return false;
+		}
 	}
 }

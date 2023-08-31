@@ -5,7 +5,7 @@
  * @package Automattic/WooCommerce/Grow/Tools
  */
 
-namespace Automattic\WooCommerce\Grow\Tools\Checks;
+namespace Automattic\WooCommerce\Grow\Tools\CompatChecker\v0_0_1\Checks;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -19,7 +19,7 @@ class WPCompatibility extends CompatCheck {
 	 */
 	private function check_wp_version() {
 		global $wp_version;
-		if ( version_compare( $this->plugin_data['TestedWP'], $wp_version, '<' ) ) {
+		if ( $this->compare_major_version( $this->plugin_data['TestedWP'], $wp_version, '<' ) ) {
 			add_action( 'admin_notices', array( $this, 'wp_not_tested' ) );
 		}
 		return true;
@@ -54,5 +54,6 @@ class WPCompatibility extends CompatCheck {
 	 */
 	protected function run_checks() {
 		$this->check_wp_version();
+		return true;
 	}
 }
